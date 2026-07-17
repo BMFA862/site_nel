@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>site MDP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<style>
+    body {
+    background: radial-gradient(circle at center, #0c75cc 0%, #f583ff 60%);
+    }
+</style>
+<body>
+    <!-- ...contenu principal... -->
+    <div class="d-flex align-items-center justify-content-center vh-100">
+        <form onsubmit="return false;">
+            <div class="d-flex flex-column align-items-center">
+                <h3 class="mb-4 text-center text-light">Mot de passe :</h3>
+                <input 
+                    type="password" 
+                    id="motdepasse" 
+                    name="motdepasse" 
+                    maxlength="5" 
+                    class="visually-hidden position-absolute opacity-0" 
+                    autocomplete="off" 
+                    inputmode="numeric" 
+                    pattern="[0-9]*"
+                    style="z-index:-1;">
+                <div id="password-dots" class="d-flex justify-content-center mb-2">
+                    <!-- Points générés par JS -->
+                </div>
+                <button type="submit" class="btn btn-success btn-lg mt-4">Entrer</button>
+                <br><br>
+                <p class="text-light fs-5 px-3 text-center">Une surprise t'attend tout en bas de la page suivante ;)</p>
+            </div>
+        </form>
+    </div>
+    <!-- Modal Bootstrap -->
+    <div class="modal fade" id="incorrectModal" tabindex="-1" aria-labelledby="incorrectModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title text-danger" id="incorrectModalLabel">Erreur</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+          </div>
+          <div class="modal-body">
+            Mot de passe incorrect
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fermer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+        // Génération des points
+        const DOTS = 4;
+        const dotsContainer = document.getElementById('password-dots');
+        for (let i = 0; i < DOTS; i++) {
+            const dot = document.createElement('span');
+            dot.className = 'mx-2 rounded-circle bg-dark-subtle';
+            dot.style.width = '20px';
+            dot.style.height = '20px';
+            dot.style.display = 'inline-block';
+            dot.style.transition = 'background 0.2s';
+            dotsContainer.appendChild(dot);
+        }
+
+        const input = document.getElementById('motdepasse');
+        // Focus sur le container pour déclencher le focus sur l'input caché
+        dotsContainer.tabIndex = 0;
+        dotsContainer.addEventListener('focus', function() {
+            input.focus();
+            input.click(); // déclenche le clavier virtuel sur certains navigateurs mobiles
+        });
+    
+
+        function updateDots() {
+            const value = input.value;
+            const dots = dotsContainer.children;
+            for (let i = 0; i < DOTS; i++) {
+                if (i < value.length) {
+                    dots[i].classList.remove('bg-dark-subtle');
+                    dots[i].style.background = '#ebf62a'; // jaune
+                } else {
+                    dots[i].style.background = '';
+                    dots[i].classList.add('bg-dark-subtle');
+                }
+            }
+        }
+
+        input.addEventListener('input', updateDots);
+
+        // Vérification du mot de passe à la soumission
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (input.value === '2212') {
+                window.location.href = 'final.html';
+            } else {
+                // Affiche la modal Bootstrap
+                const modal = new bootstrap.Modal(document.getElementById('incorrectModal'));
+                modal.show();
+                input.value = '';
+                updateDots();
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', function() {
+            input.focus();
+            input.click();
+            updateDots();
+        });
+
+
+        // Remplace l'écouteur sur dotsContainer par un écouteur global
+        document.addEventListener('keydown', function(e) {
+            if (document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'password') {
+                // L'input gère déjà l'événement
+                return;
+            }
+            // N'accepte que les chiffres
+            if (/^[0-9]$/.test(e.key) && input.value.length < DOTS) {
+                input.value += e.key;
+                updateDots();
+                e.preventDefault();
+            } else if (e.key === 'Backspace') {
+                input.value = input.value.slice(0, -1);
+                updateDots();
+                e.preventDefault();
+            }
+        });
+
+        // Empêche la saisie de caractères non numériques dans l'input caché
+        input.addEventListener('keypress', function(e) {
+            if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
